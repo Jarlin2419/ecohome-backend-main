@@ -9,7 +9,7 @@ export default function Chat({ token, username, onLogout }) {
 
   useEffect(() => {
     // Conectar enviando el JWT en la propiedad 'auth' (handshake seguro)
-    const socketConnection = io('http://localhost:3000', {
+    const socketConnection = io('https://ecohome-backend-main.onrender.com', {
       auth: { token }
     });
 
