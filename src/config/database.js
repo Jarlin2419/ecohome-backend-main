@@ -1,20 +1,31 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
+// Si existe DATABASE_URL (en Render), la usa. Si no (en tu PC), usa tus datos locales.
+const connectionString = process.env.DATABASE_URL;
 
-const pool = new Pool({
-    host: 'localhost',
-    user: 'postgres',
-    password: 'L4+Moto1910**3.',       // Tu contraseña real de pgAdmin
-    database: 'ecohome_store_db',     // Tu base de datos real de EcoHome
-    port: 5432,
-});
+const pool = new Pool(
+    connectionString
+        ? {
+              connectionString: connectionString,
+              ssl: {
+                  rejectUnauthorized: false // Obligatorio para conexiones seguras en Render
+              }
+          }
+        : {
+              host: 'localhost',
+              user: 'postgres',
+              password: 'xxxxxxxx',
+              database: 'ecohome_store_db',
+              port: 5432,
+          }
+);
 
 pool.on('connect', () => {
     console.log('[DB] Pool de conexiones establecido con PostgreSQL.');
 });
 
-// >>> ESTE ES EL LUGAR DE LA PRUEBA (Antes del module.exports) <<<
+// Prueba de conexión
 pool.query('SELECT NOW()', (err, res) => {
   if (err) {
     console.error('❌ Error crítico al conectar con PostgreSQL:', err.message);
@@ -24,40 +35,3 @@ pool.query('SELECT NOW()', (err, res) => {
 });
 
 module.exports = pool;
-
-
-/*const { Pool } = require('pg');
-require('dotenv').config();
-
-// 1. ESPÍA DE VARIABLES: Imprimimos en consola qué está leyendo Node realmente
-console.log('--- [DIAGNÓSTICO DE VARIABLES .ENV] ---');
-console.log('Host:', process.env.DB_HOST);
-console.log('User:', process.env.DB_USER);
-console.log('Port:', process.env.DB_PORT);
-console.log('Database Name:', process.env.DB_NAME);
-console.log('Password (primeros 3 caracteres):', process.env.DB_PASS ? process.env.DB_PASS.substring(0, 3) + '...' : '❌ UNDEFINED');
-console.log('----------------------------------------');
-
-const pool = new Pool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
-    port: process.env.DB_PORT,
-});
-
-pool.on('connect', () => {
-    console.log('[DB] Pool de conexiones establecido con PostgreSQL.');
-});
-
-// 2. ESPÍA DE POSTGRES: Le preguntamos a Postgres en qué base de datos física cayó
-pool.query('SELECT current_database(), current_user', (err, res) => {
-  if (err) {
-    console.error('❌ Error crítico al conectar con PostgreSQL:', err.message);
-  } else {
-    const dbInfo = res.rows[0];
-    console.log(`🟢 ¡Conexión física exitosa! Postgres dice que estás en la base de datos: "${dbInfo.current_database}" con el usuario: "${dbInfo.current_user}"`);
-  }
-});
-
-module.exports = pool;*/
