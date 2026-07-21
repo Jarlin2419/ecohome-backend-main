@@ -5,7 +5,7 @@ require('dotenv').config();
 const pool = new Pool({
     host: 'localhost',
     user: 'postgres',
-    password: 'L4+Moto1910**3.',       // Tu contraseña real de pgAdmin
+    password: 'xxxxxxxxxxxx',       // Tu contraseña real de pgAdmin
     database: 'ecohome_store_db',     // Tu base de datos real de EcoHome
     port: 5432,
 });
