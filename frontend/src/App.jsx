@@ -19,7 +19,7 @@ export default function App() {
   const [newProductName, setNewProductName] = useState('');
   const [newProductPrice, setNewProductPrice] = useState('');
 
-  const API_URL = 'http://localhost:3000/api';
+  const API_URL = 'https://ecohome-backend-main.onrender.com/api';
 
   // Función para sincronizar estadísticas y productos del usuario
   const fetchUserData = async (currentToken) => {
