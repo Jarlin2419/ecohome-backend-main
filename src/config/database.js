@@ -2,12 +2,10 @@ const { Pool } = require('pg');
 require('dotenv').config();
 
 
+const { Pool } = require('pg');
 const pool = new Pool({
-    host: 'localhost',
-    user: 'postgres',
-    password: 'xxxxxxxxxxxx',       // Tu contraseña real de pgAdmin
-    database: 'ecohome_store_db',     // Tu base de datos real de EcoHome
-    port: 5432,
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.NODE_ENV === 'production' { rejectUnauthorized: false } : false
 });
 
 pool.on('connect', () => {
