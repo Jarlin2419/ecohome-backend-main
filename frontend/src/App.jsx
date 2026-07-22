@@ -7,7 +7,7 @@ export default function App() {
   const [username, setUsername] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // Estados para la Actividad 3 (Estadísticas y Productos)
+  // Estados para estadísticas y productos
   const [productCount, setProductCount] = useState(0);
   const [products, setProducts] = useState([]);
   
@@ -24,21 +24,36 @@ export default function App() {
   // Función para sincronizar estadísticas y productos del usuario
   const fetchUserData = async (currentToken) => {
     try {
+      console.log("-> Sincronizando datos con el token...");
       const headers = { Authorization: `Bearer ${currentToken}` };
 
       // 1. Obtener estadísticas del usuario (/users/me/stats)
       const statsRes = await axios.get(`${API_URL}/users/me/stats`, { headers });
-      setProductCount(statsRes.data.productCount);
+      console.log("Stats recibidos:", statsRes.data);
+      setProductCount(statsRes.data.productCount ?? statsRes.data.count ?? 0);
 
       // 2. Obtener listado de productos con su respectivo creador
       const productsRes = await axios.get(`${API_URL}/products`, { headers });
-      setProducts(productsRes.data);
+      console.log("Productos recibidos:", productsRes.data);
+      
+      const productList = Array.isArray(productsRes.data) 
+        ? productsRes.data 
+        : (productsRes.data.products || productsRes.data.data || []);
+      
+      setProducts(productList);
     } catch (error) {
-      console.error('Error al sincronizar datos:', error);
+      console.error('Error al sincronizar datos:', error.response?.data || error.message);
     }
   };
 
-  const handleLoginSubmit = async (e) => {
+  // useEffect para cargar los datos automáticamente al cambiar el estado de sesión
+  useEffect(() => {
+    if (isLoggedIn && token) {
+      fetchUserData(token);
+    }
+  }, [isLoggedIn, token]);
+
+  const handleLoginSubmit = (e) => {
     e.preventDefault();
     if (!tempUsername.trim() || !tempToken.trim()) {
       alert('Por favor, ingresa un nombre de usuario y tu token JWT.');
@@ -48,9 +63,6 @@ export default function App() {
     setUsername(tempUsername);
     setToken(tempToken);
     setIsLoggedIn(true);
-
-    // Cargar datos iniciales al iniciar sesión
-    await fetchUserData(tempToken);
   };
 
   const handleLogout = () => {
@@ -77,7 +89,7 @@ export default function App() {
       setNewProductName('');
       setNewProductPrice('');
 
-      // Actualización inmediata del contador y la lista (ej: de 14 a 15)
+      // Actualización inmediata del contador y la lista
       await fetchUserData(token);
     } catch (error) {
       console.error('Error al registrar el producto:', error);
@@ -147,15 +159,24 @@ export default function App() {
           </div>
 
           {/* Listado de productos indicando el creador */}
+          {/* Listado de productos indicando el creador */}
           <div style={styles.card}>
             <h3>Catálogo de Productos</h3>
             <ul style={styles.productList}>
-              {products.map((prod) => (
-                <li key={prod.id} style={styles.productItem}>
-                  <span><strong>{prod.name}</strong> - ${prod.price}</span>
-                  <small style={styles.creatorText}>Creado por ID: {prod.created_by}</small>
-                </li>
-              ))}
+              {products.length === 0 ? (
+                <p style={{ color: '#666', fontStyle: 'italic' }}>No hay productos registrados o cargando...</p>
+              ) : (
+                products.map((prod) => (
+                  <li key={prod.id || prod._id} style={styles.productItem}>
+                    <span><strong>{prod.name}</strong> - ${prod.price}</span>
+                    
+                    {/* CAMBIA ESTA LÍNEA */}
+                    <small style={styles.creatorText}> Creado por: {prod.created_by_username || 'Sistema'}
+</small>
+                    
+                  </li>
+                ))
+              )}
             </ul>
           </div>
 

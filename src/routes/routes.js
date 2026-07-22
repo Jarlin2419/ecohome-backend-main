@@ -3,8 +3,9 @@ const router = express.Router();
 const authController = require('../controllers/authController');
 const productController = require('../controllers/productController');
 const { authJWT, authorizeRole } = require('../middlewares/authMiddleware');
-//const pool = require('../config/db');
-// Endpoint para obtener las estadísticas usando el controlador
+
+// 1. IMPORTAR CORRECTAMENTE EL POOL DE LA BASE DE DATOS
+const pool = require('../config/database'); 
 
 // Autenticación
 router.post('/auth/signup', authController.signup);
@@ -14,7 +15,6 @@ router.post('/auth/login', authController.login);
 router.get('/products', productController.getAll);
 router.get('/products/:id', productController.getById);
 
-// Gestión Comercial (Protegido)
 // Gestión Comercial (Protegido para usuarios autenticados)
 router.post('/products', authJWT, productController.create);
 router.put('/products/:id', authJWT, authorizeRole('Admin'), productController.update);
@@ -37,7 +37,9 @@ router.get('/users/me/stats', authJWT, async (req, res) => {
       productCount: count
     });
   } catch (error) {
+    console.error("Error en /users/me/stats:", error.message);
     res.status(500).json({ error: error.message });
   }
 });
+
 module.exports = router;

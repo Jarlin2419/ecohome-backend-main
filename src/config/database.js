@@ -15,7 +15,7 @@ const pool = new Pool(
         : {
               host: 'localhost',
               user: 'postgres',
-              password: '222222222',
+              password: 'xxxxxxxx',
               database: 'ecohome_store_db',
               port: 5432,
           }
